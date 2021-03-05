@@ -1,18 +1,17 @@
 // bitset.h
-// Řešení IJC-DU1, příklad a), 5. 3. 2021
-// Autor: Michal Šmahel, FIT
-// Přeloženo: gcc 10.2.1
-
+// Solution of IJC-DU1, exercise a), 5th March 2021
+// Author: Michal Šmahel, FIT
+// Compiler: gcc 10.2.1
 
 #ifndef IJC_1_HOMEWORK_BITSET_H
 #define IJC_1_HOMEWORK_BITSET_H
 
-#define bitset_create(jmeno_pole,velikost)
-#define bitset_alloc(jmeno_pole,velikost)
-#define bitset_free(jmeno_pole)
-#define bitset_size(jmeno_pole)
-#define bitset_setbit(jmeno_pole,index,výraz)
-#define bitset_getbit(jmeno_pole,index)
+#define bitset_create(array_name, size)
+#define bitset_alloc(array_name, size)
+#define bitset_free(array_name)
+#define bitset_size(array_name)
+#define bitset_setbit(array_name, index, expression)
+#define bitset_getbit(array_name, index)
 
 typedef <DOPLNIT> bitset_t;
 typedef unsigned long bitset_index_t;

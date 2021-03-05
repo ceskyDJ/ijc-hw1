@@ -1,4 +1,4 @@
 // primes.c
-// Řešení IJC-DU1, příklad a), 5. 3. 2021
-// Autor: Michal Šmahel, FIT
-// Přeloženo: gcc 10.2.1
+// Solution of IJC-DU1, exercise a), 5th March 2021
+// Author: Michal Šmahel, FIT
+// Compiler: gcc 10.2.1

@@ -1,7 +1,7 @@
 // ppm.h
-// Řešení IJC-DU1, příklad b), 5. 3. 2021
-// Autor: Michal Šmahel, FIT
-// Přeloženo: gcc 10.2.1
+// Solution of IJC-DU1, exercise b), 5th March 2021
+// Author: Michal Šmahel, FIT
+// Compiler: gcc 10.2.1
 
 #ifndef IJC_1_HOMEWORK_PPM_H
 #define IJC_1_HOMEWORK_PPM_H
@@ -11,7 +11,7 @@
 struct ppm {
     unsigned xsize;
     unsigned ysize;
-    char data[];    // RGB bajty, celkem 3*xsize*ysize
+    char data[];    // RGB bytes, total 3*xsize*ysize
 };
 
 struct ppm * ppm_read(const char * filename);
