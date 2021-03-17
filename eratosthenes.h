@@ -1,0 +1,8 @@
+//
+// Created by ceskyDJ on 07.03.21.
+//
+
+#ifndef IJC_1ST_HOMEWORK_ERATOSTHENES_H
+#define IJC_1ST_HOMEWORK_ERATOSTHENES_H
+
+#endif //IJC_1ST_HOMEWORK_ERATOSTHENES_H
