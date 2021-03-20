@@ -6,15 +6,24 @@
 #ifndef IJC_1_HOMEWORK_PPM_H
 #define IJC_1_HOMEWORK_PPM_H
 
-#define MAX_IMG_DATA_SIZE 8000*8000*3
+#include <stdio.h>
 
 struct ppm {
     unsigned xsize;
     unsigned ysize;
-    char data[];    // RGB bytes, total 3*xsize*ysize
+    char data[];    // RGB bytes, total 3 * xsize * ysize
 };
 
+/**
+ * Loads image from PPM file
+ * @param filename File with the image
+ * @return Structure with loaded image (properties and data)
+ */
 struct ppm * ppm_read(const char * filename);
+/**
+ * Free allocated structure for storing loaded image
+ * @param p Pointer to the structure
+ */
 void ppm_free(struct ppm *p);
 
 #endif //IJC_1_HOMEWORK_PPM_H

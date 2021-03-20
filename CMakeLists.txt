@@ -3,6 +3,7 @@ project(IJC\ |\ 1st\ homework C)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_COMPILER gcc)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -pedantic -Wall -Wextra -fsanitize=address -DUSE_INLINE -lm -O2")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -pedantic -Wall -Wextra -fsanitize=address -DUSE_INLINE -lm")
 
-add_executable(DU1 bitset.h primes.c error.c error.h ppm.c ppm.h eratosthenes.c steg-decode.c eratosthenes.h bitset.c)
+add_executable(primes bitset.c bitset.h eratosthenes.c eratosthenes.h error.c error.h primes.c)
+add_executable(steg-decode bitset.c bitset.h eratosthenes.c eratosthenes.h error.c error.h ppm.c ppm.h steg-decode.c)
