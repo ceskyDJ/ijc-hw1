@@ -10,7 +10,7 @@
 #include "ppm.h"
 #include "error.h"
 
-// Max image size = 9999 * 9999 * 3
+// Max image size = 8000 * 8000 * 3
 #define MAX_WIDTH_DIGITS 4
 #define MAX_HEIGHT_DIGITS 4
 #define MAGIC_NUMBER_LENGTH 2
@@ -92,6 +92,12 @@ struct ppm * prepare_structure(FILE *file) {
     int height;
     if ((height = read_stringy_number(file, MAX_HEIGHT_DIGITS)) < 0) {
         warning_msg("Soubor neobsahuje všechny povinné informace, je příliš malý\n");
+
+        return NULL;
+    }
+
+    if (width > 8000 || height > 8000) {
+        warning_msg("Byla překročena maximální velikost obrázku, která činí 8000x8000 pixelů\n");
 
         return NULL;
     }
