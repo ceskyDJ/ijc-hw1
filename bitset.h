@@ -29,15 +29,14 @@ typedef unsigned long bitset_index_t;
         (position) % (sizeof(unsigned long) * CHAR_BIT)
 
 #define bitset_create(array_name, size)                                                                                \
-        static_assert((size) > 0 && (int)(size) == (size), "bitset_create: Velikost pole musí být kladné celé číslo"); \
+        static_assert((size) <= 200000000, "bitset_create: Do pole lze vložit maximálně 200 * 10^6 bitů");            \
                                                                                                                        \
         /* + 1 - the first index is reserved for number of stored bits */                                              \
         unsigned long array_name[bitset_bits2ul(size) + 1] = {0, };                                                    \
         array_name[0] = (size)
 
 #define bitset_alloc(array_name, size)                                                                                 \
-        static_assert((size) > 0 && (int)(size) == (size), "bitset_alloc: Velikost pole musí být kladné celé číslo");  \
-        static_assert((size) <= 200000000, "bitset_alloc: Do pole lze vložit maximálně 200 * 10^6 bitů");              \
+        assert( ((void)"bitset_alloc: Do pole lze vložit maximálně 200 * 10^6 bitů", (size) <= 200000000) );           \
                                                                                                                        \
         unsigned long *array_name;                                                                                     \
         /* + 1 - the first index is reserved for number of stored bits */                                              \
