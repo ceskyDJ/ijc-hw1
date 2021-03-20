@@ -42,7 +42,7 @@ typedef unsigned long bitset_index_t;
         unsigned long *array_name;                                                                                     \
         /* + 1 - the first index is reserved for number of stored bits */                                              \
         if ((array_name = malloc(sizeof(unsigned long) * (bitset_bits2ul(size) + 1))) == NULL) {                       \
-            error_exit("bitset_alloc: Chyba alokace paměti");                                                          \
+            error_exit("bitset_alloc: Chyba alokace paměti.\n");                                                       \
         }                                                                                                              \
         memset(array_name, 0, sizeof(unsigned long) * (bitset_bits2ul(size) + 1));                                     \
         array_name[0] = (size)
@@ -55,7 +55,7 @@ typedef unsigned long bitset_index_t;
     #define bitset_setbit(array_name, position, expression)                                                            \
         do {                                                                                                           \
             if ((position) >= array_name[0]) {                                                                         \
-                error_exit("bitset_setbit: Index %lu mimo rozsah 0..%lu", (position), array_name[0] - 1);              \
+                error_exit("bitset_setbit: Index %lu mimo rozsah 0..%lu\n", (position), array_name[0] - 1);            \
             }                                                                                                          \
                                                                                                                        \
             if ((expression)) {                                                                                        \
@@ -69,7 +69,7 @@ typedef unsigned long bitset_index_t;
         (                                                                                                              \
         (position) < array_name[0]                                                                                     \
             ? (array_name[bitset_array_index(position)] >> bitset_bit_offset(position)) & 1UL                          \
-            : (error_exit("bitset_getbit: Index %lu mimo rozsah 0..%lu", (position), bitset_size(array_name) - 1), 0)  \
+            : (error_exit("bitset_getbit: Index %lu mimo rozsah 0..%lu\n", (position), bitset_size(array_name) - 1), 0)\
         )
 #else
     inline void bitset_free(bitset_t array_name) {
@@ -82,7 +82,7 @@ typedef unsigned long bitset_index_t;
 
     inline void bitset_setbit(bitset_t array_name, bitset_index_t position, int expression) {
         if (position >= array_name[0]) {
-            error_exit("bitset_setbit: Index %lu mimo rozsah 0..%lu", position, array_name[0] - 1);
+            error_exit("bitset_setbit: Index %lu mimo rozsah 0..%lu\n", position, array_name[0] - 1);
         }
 
         if (expression) {
@@ -96,7 +96,7 @@ typedef unsigned long bitset_index_t;
         return (
             position < array[0]
                 ? (array[bitset_array_index(position)] >> bitset_bit_offset(position)) & 1UL
-                : (error_exit("bitset_getbit: Index %lu mimo rozsah 0..%lu", position, bitset_size(array) - 1), 0)
+                : (error_exit("bitset_getbit: Index %lu mimo rozsah 0..%lu\n", position, bitset_size(array) - 1), 0)
         );
     }
 #endif
