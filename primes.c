@@ -10,6 +10,10 @@
 
 #define PRIMES_TO_WRITE 4
 
+/**
+ * Program for counting primes by the Sieve of Eratosthenes algorithm
+ * @return Status code (== 0 => ok, != 0 => error)
+ */
 int main(void) {
     clock_t start = clock();
 

@@ -6,6 +6,10 @@
 #include <math.h>
 #include "eratosthenes.h"
 
+/**
+ * Apply the Sieve of Eratosthenes algorithm to provided bitset
+ * @param bit_array Bitset full of 0 - after processing it'll contain primes at bits with value "0"
+ */
 void eratosthenes(bitset_t bit_array) {
     bitset_setbit(bit_array, 0, 1);
     bitset_setbit(bit_array, 1, 1);

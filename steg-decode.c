@@ -10,11 +10,18 @@
 #include "bitset.h"
 #include "eratosthenes.h"
 
+/**
+ * Program for decoding message hidden in PPM image by something like steganography technique
+ * @param argc Number of input arguments - 1 explicit is required (path_to_image)
+ * @param argv Array of input arguments
+ * @return Status code (== 0 => ok, != 0 => error)
+ */
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         error_exit("Program vyžaduje jeden argument s cestou k PPM souboru\n");
     }
 
+    // Load PPM image
     struct ppm *image;
     if ((image = ppm_read(argv[1])) == NULL) {
         error_exit("Neplatný formát souboru\n");
@@ -25,6 +32,7 @@ int main(int argc, char *argv[]) {
     bitset_alloc(primes_bitset, size);
     eratosthenes(primes_bitset);
 
+    // Find hidden message in loaded PPM image
     unsigned char value = 0;
     unsigned value_index = 0; // Bit index in value
     bool valid_string = false;
@@ -34,10 +42,12 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
+        // Append bit to char in construction
         if (image->data[i] & 1) {
             value |= 1 << value_index;
         }
 
+        // Complete char --> reset iterator-values and write a value
         if (++value_index > 7) {
             printf("%c", value);
 

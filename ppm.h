@@ -8,6 +8,9 @@
 
 #include <stdio.h>
 
+/**
+ * Structure for storing loaded PPM image data and properties
+ */
 struct ppm {
     unsigned xsize;
     unsigned ysize;

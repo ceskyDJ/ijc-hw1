@@ -12,45 +12,86 @@
 #include <string.h>
 #include "error.h"
 
+/**
+ * Type of bitset array
+ */
 typedef unsigned long *bitset_t;
+/**
+ * Type of array index of bitset array
+ */
 typedef unsigned long bitset_index_t;
 
-// Counts how many unsigned longs is needed for storing some bits
+/**
+ * Counts how many unsigned longs is needed for storing some bits
+ * @param bits Number of bits to be stored in bitset
+ */
 #define bitset_bits2ul(bits)                                                                                           \
         (bits) / (sizeof(unsigned long) * CHAR_BIT) + (((bits) % (sizeof(unsigned long) * 8)) == 0 ? 0 : 1)
 
-// Counts index in bitset array from bit position wanted by caller
+/**
+ * Counts index in bitset array from bit position wanted by caller
+ * @param position Bit's position in bitset (0..bitset size - 1)
+ */
 #define bitset_array_index(position)                                                                                   \
         /* + 1 - the first position is reserved for number of stored bits */                                           \
         ((position) / (sizeof(unsigned long) * CHAR_BIT)) + 1
 
-// Counts bit offset in unsigned long value in bitset array from bit position wanted by caller
+/**
+ * Counts bit offset in unsigned long value in bitset array from bit position wanted by caller
+ * @param position Bit's position in bitset (0..bitset size - 1)
+ */
 #define bitset_bit_offset(position)                                                                                    \
         (position) % (sizeof(unsigned long) * CHAR_BIT)
 
-#define bitset_create(array_name, size)                                                                                \
-        static_assert((size) <= 200000000, "bitset_create: Do pole lze vložit maximálně 200 * 10^6 bitů");            \
+/**
+ * Create a new bitset using static memory
+ * @param array Name of the bitset (variable name)
+ * @param size Size - number of bits that can be stored
+ */
+#define bitset_create(array, size)                                                                                \
+        static_assert((size) <= 200000000, "bitset_create: Do pole lze vložit maximálně 200 * 10^6 bitů");             \
                                                                                                                        \
         /* + 1 - the first index is reserved for number of stored bits */                                              \
-        unsigned long array_name[bitset_bits2ul(size) + 1] = {0, };                                                    \
-        array_name[0] = (size)
+        unsigned long array[bitset_bits2ul(size) + 1] = {0, };                                                    \
+        array[0] = (size)
 
-#define bitset_alloc(array_name, size)                                                                                 \
+/**
+ * Creates a new bitset using dynamically allocated memory
+ * <b>Needs to be deallocated using bitset_free()!</a>
+ * @param array Name of the bitset (variable name)
+ * @param size Size - number of bits that can be stored
+ */
+#define bitset_alloc(array, size)                                                                                 \
         assert( ((void)"bitset_alloc: Do pole lze vložit maximálně 200 * 10^6 bitů", (size) <= 200000000) );           \
                                                                                                                        \
-        unsigned long *array_name;                                                                                     \
+        unsigned long *array;                                                                                     \
         /* + 1 - the first index is reserved for number of stored bits */                                              \
-        if ((array_name = malloc(sizeof(unsigned long) * (bitset_bits2ul(size) + 1))) == NULL) {                       \
+        if ((array = malloc(sizeof(unsigned long) * (bitset_bits2ul(size) + 1))) == NULL) {                       \
             error_exit("bitset_alloc: Chyba alokace paměti.\n");                                                       \
         }                                                                                                              \
-        memset(array_name, 0, sizeof(unsigned long) * (bitset_bits2ul(size) + 1));                                     \
-        array_name[0] = (size)
+        memset(array, 0, sizeof(unsigned long) * (bitset_bits2ul(size) + 1));                                     \
+        array[0] = (size)
 
 #ifndef USE_INLINE
+    /**
+     * Deallocates space allocated for bitset created by bitset_alloc()
+     * @param array Name of the bitset (variable name)
+     */
     #define bitset_free(array_name) free(array_name)
 
+    /**
+     * Returns declared size of bitset
+     * @param array
+     * @return Number of bits stored in bitset
+     */
     #define bitset_size(array_name) array_name[0]
 
+    /**
+     * Sets a value of selected bit
+     * @param array Name of the bitset (variable name)
+     * @param position Bit's position in bitset (0..bitset size - 1) --> bit selection
+     * @param expression Result of expression will be set as bit's value (result: == 0 --> "0", != 0 --> "1")
+     */
     #define bitset_setbit(array_name, position, expression)                                                            \
         do {                                                                                                           \
             if ((position) >= array_name[0]) {                                                                         \
@@ -64,6 +105,12 @@ typedef unsigned long bitset_index_t;
             }                                                                                                          \
         } while(0)
 
+    /**
+     * Returns value of selected bit
+     * @param array Name of the bitset (variable name)
+     * @param position Bit's position in bitset (0..bitset size - 1) --> bit selection
+     * @return Expression saying a bit value (result: == 0 --> "0", != 0 --> "1")
+     */
     #define bitset_getbit(array_name, position)                                                                        \
         (                                                                                                              \
         (position) < array_name[0]                                                                                     \
@@ -71,26 +118,47 @@ typedef unsigned long bitset_index_t;
             : (error_exit("bitset_getbit: Index %lu mimo rozsah 0..%lu\n", (position), bitset_size(array_name) - 1), 0)\
         )
 #else
-    inline void bitset_free(bitset_t array_name) {
-        free(array_name);
+    /**
+     * Deallocates space allocated for bitset created by bitset_alloc()
+     * @param array Name of the bitset (variable name)
+     */
+    inline void bitset_free(bitset_t array) {
+        free(array);
     }
 
-    inline unsigned long bitset_size(bitset_t array_name) {
-        return array_name[0];
+    /**
+     * Returns declared size of bitset
+     * @param array
+     * @return Number of bits stored in bitset
+     */
+    inline unsigned long bitset_size(bitset_t array) {
+        return array[0];
     }
 
-    inline void bitset_setbit(bitset_t array_name, bitset_index_t position, int expression) {
-        if (position >= array_name[0]) {
-            error_exit("bitset_setbit: Index %lu mimo rozsah 0..%lu\n", position, array_name[0] - 1);
+    /**
+     * Sets a value of selected bit
+     * @param array Name of the bitset (variable name)
+     * @param position Bit's position in bitset (0..bitset size - 1) --> bit selection
+     * @param expression Result of expression will be set as bit's value (result: == 0 --> "0", != 0 --> "1")
+     */
+    inline void bitset_setbit(bitset_t array, bitset_index_t position, int expression) {
+        if (position >= array[0]) {
+            error_exit("bitset_setbit: Index %lu mimo rozsah 0..%lu\n", position, array[0] - 1);
         }
 
         if (expression) {
-            array_name[bitset_array_index(position)] |= 1UL << bitset_bit_offset(position);
+            array[bitset_array_index(position)] |= 1UL << bitset_bit_offset(position);
         } else {
-            array_name[bitset_array_index(position)] &= ~(1UL << bitset_bit_offset(position));
+            array[bitset_array_index(position)] &= ~(1UL << bitset_bit_offset(position));
         }
     }
 
+    /**
+     * Returns value of selected bit
+     * @param array Name of the bitset (variable name)
+     * @param position Bit's position in bitset (0..bitset size - 1) --> bit selection
+     * @return Expression saying a bit value (result: == 0 --> "0", != 0 --> "1")
+     */
     inline unsigned long bitset_getbit(bitset_t array, bitset_index_t position) {
         return (
             position < array[0]
