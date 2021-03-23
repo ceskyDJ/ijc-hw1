@@ -9,38 +9,40 @@
 #   - clean:               make clean
 
 CC=gcc
-CFLAGS=-std=c11 -pedantic -Wall -lm -O2
+CFLAGS=-g -std=c11 -pedantic -Wall -Wextra -lm -O2
 
-.PHONY: all dep run pack clean
+.PHONY: all run pack clean
 
 # make
-all: dep primes primes-i steg-decode
+all: primes primes-i steg-decode
 
-# Automatic compilation .c and .h to .o files
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-%-i.o: %.c
-	$(CC) $(CFLAGS) -DUSE_INLINE -c $< -o $@
 
 ## ## ##
-# Dependencies
-dep:
-	$(CC) -MM *.c | sed 'p; s/\.o/-i.o/' > dep.list
+eratosthenes.o: eratosthenes.c eratosthenes.h bitset.h error.h
+error.o: error.c error.h
+ppm.o: ppm.c ppm.h error.h
+primes.o: primes.c bitset.h error.h eratosthenes.h
+steg-decode.o: steg-decode.c ppm.h error.h bitset.h eratosthenes.h
 
--include dep.list
+# Modules for using inline functions
+bitset.o: bitset.c bitset.h error.h
+	$(CC) $(CFLAGS) -DUSE_INLINE -c $< -o $@
+eratosthenes-i.o: eratosthenes.c eratosthenes.h bitset.h error.h
+	$(CC) $(CFLAGS) -DUSE_INLINE -c $< -o $@
 ## ## ##
 
 # Linking .o files into final binaries
-primes: bitset.o eratosthenes.o error.o primes.o
-	$(CC) $(CFLAGS) bitset.o eratosthenes.o error.o primes.o -o primes
-primes-i: bitset-i.o eratosthenes-i.o error-i.o primes-i.o
-	$(CC) $(CFLAGS) -DUSE_INLINE bitset-i.o eratosthenes-i.o error-i.o primes-i.o -o primes-i
-steg-decode: bitset.o eratosthenes.o error.o ppm.o steg-decode.o
-	$(CC) $(CFLAGS) bitset.o eratosthenes.o error.o ppm.o steg-decode.o -o steg-decode
+primes: eratosthenes.o error.o primes.o
+	$(CC) $(CFLAGS) eratosthenes.o error.o primes.o -o primes
+primes-i: bitset.o eratosthenes-i.o error.o primes.o
+	$(CC) $(CFLAGS) -DUSE_INLINE bitset.o eratosthenes-i.o error.o primes.o -o primes-i
+steg-decode: eratosthenes.o error.o ppm.o steg-decode.o
+	$(CC) $(CFLAGS) eratosthenes.o error.o ppm.o steg-decode.o -o steg-decode
 
 # make run
 run: primes primes-i
-	chmod +x primes primes-i
 	ulimit -s 65535 && ./primes
 	ulimit -s 65535 && ./primes-i
 
@@ -50,4 +52,4 @@ pack:
 
 # make clean
 clean:
-	rm -f primes primes-i steg-decode xsmahe01.zip *.o dep.list
+	rm -f primes primes-i steg-decode xsmahe01.zip *.o
