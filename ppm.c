@@ -6,65 +6,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 #include "ppm.h"
 #include "error.h"
-
-// Max image size = 8000 * 8000 * 3
-#define MAX_WIDTH_DIGITS 4
-#define MAX_HEIGHT_DIGITS 4
-#define MAGIC_NUMBER_LENGTH 2
-
-/**
- * Reads all whitespaces until next non-whitespace char from file
- * @param file File to read from
- * @return 0 for success, 1 for error
- */
-int read_whitespaces(FILE *file) {
-    int c;
-    do {
-        if ((c = fgetc(file)) == EOF) {
-            return 1;
-        }
-    } while (isspace(c));
-
-    // Return non-whitespace char back
-    ungetc(c, file);
-
-    return 0;
-}
-
-/**
- * Reads single unsigned number stored in text form (ASCII digits) from file
- * @param file File to read from
- * @param max_digits Maximum of digits the loaded number can contain
- * @return Value > 0 if number has been read successfully or -1 if error has occurred
- */
-int read_stringy_number(FILE *file, int max_digits) {
-    int number = 0;
-
-    // Skip whitespace char before number (the first digit, resp.)
-    if (read_whitespaces(file) != 0) {
-        return -1;
-    }
-
-    int c;
-    int i = 0;
-    while (isdigit(c = fgetc(file)) && i++ < max_digits) {
-        number *= 10;
-        number += (c - '0');
-    }
-
-    // While has ended due to end of file, so
-    if (c == EOF) {
-        return -1;
-    }
-
-    // Return non-digit char back
-    ungetc(c, file);
-
-    return number;
-}
 
 /**
  * Prepares structure for storing loaded image's properties and data
@@ -73,8 +16,8 @@ int read_stringy_number(FILE *file, int max_digits) {
  */
 struct ppm * prepare_structure(FILE *file) {
     // Magic number (definition of the file format) - must be P6
-    char magic_number[MAGIC_NUMBER_LENGTH + 1];
-    if (fgets(magic_number, MAGIC_NUMBER_LENGTH + 1, file) == NULL || strcmp(magic_number, "P6") != 0) {
+    char magic_number[3];
+    if (fscanf(file, "%2s", magic_number) == EOF || strcmp(magic_number, "P6") != 0) {
         warning_msg("PPM soubor musí být ve formátu PPM Raw (P6)\n");
 
         return NULL;
@@ -82,16 +25,16 @@ struct ppm * prepare_structure(FILE *file) {
 
     // Image width - 0-MAX_WIDTH_DIGITS
     int width;
-    if ((width = read_stringy_number(file, MAX_WIDTH_DIGITS)) < 0) {
-        warning_msg("Soubor neobsahuje všechny povinné informace, je příliš malý\n");
+    if (fscanf(file, "%d", &width) == EOF) {
+        warning_msg("V souboru není korektně specifikována šířka obrázku\n");
 
         return NULL;
     }
 
     // Image height - 0-MAX_HEIGHT_DIGITS
     int height;
-    if ((height = read_stringy_number(file, MAX_HEIGHT_DIGITS)) < 0) {
-        warning_msg("Soubor neobsahuje všechny povinné informace, je příliš malý\n");
+    if (fscanf(file, "%d", &height) == EOF) {
+        warning_msg("V souboru není korektně specifikována výška obrázku\n");
 
         return NULL;
     }
@@ -104,7 +47,7 @@ struct ppm * prepare_structure(FILE *file) {
 
     // Max value of color number - must be 255 (3 digits)
     int max_value;
-    if ((max_value = read_stringy_number(file, 3)) < 0 || max_value != 255) {
+    if (fscanf(file, "%d", &max_value) == EOF || max_value != 255) {
         warning_msg("PPM soubor musí mít hodnoty barev specifikované jako čísla 0..255\n");
 
         return NULL;
@@ -133,15 +76,9 @@ struct ppm * prepare_structure(FILE *file) {
  * @return 0 if success or -1 if failure
  */
 int load_image_data(FILE *file, struct ppm *image) {
-    int c;
-    for (unsigned i = 0; i < image->ysize; i++) {
-        for (unsigned j = 0; j < image->xsize; j++) {
-            if ((c = getc(file)) == EOF) {
-                return 1;
-            }
-
-            image->data[i * image->xsize + j] = (char)c;
-        }
+    size_t data_size = image->xsize * image->ysize * 3;
+    if (fread(image->data, 1, data_size, file) != data_size) {
+        return 1;
     }
 
     return 0;
@@ -154,7 +91,7 @@ int load_image_data(FILE *file, struct ppm *image) {
  */
 struct ppm * ppm_read(const char * filename) {
     FILE *file;
-    if ((file = fopen(filename, "r")) == NULL) {
+    if ((file = fopen(filename, "rb")) == NULL) {
         warning_msg("Zadaný soubor není možné otevřít\n");
 
         return NULL;
