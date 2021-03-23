@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
     bitset_alloc(primes_bitset, size);
     eratosthenes(primes_bitset);
 
-    // Find hidden message in loaded PPM image
+    // Find and write hidden message in loaded PPM image
     unsigned char value = 0;
     unsigned value_index = 0; // Bit index in value
     bool valid_string = false;
@@ -61,6 +61,9 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+
+    // Add line break after message (it hasn't to continue it)
+    printf("\n");
 
     if (!valid_string) {
         error_exit("Zpráva není ukončena znakem '\\0'\n");
