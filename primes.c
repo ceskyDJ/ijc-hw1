@@ -37,4 +37,6 @@ int main(void) {
 
     // Measure script execution time
     fprintf(stderr, "Time=%.3g\n", (double)(clock()-start)/CLOCKS_PER_SEC);
+
+    return 0;
 }

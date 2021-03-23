@@ -71,4 +71,6 @@ int main(int argc, char *argv[]) {
 
     bitset_free(primes_bitset);
     ppm_free(image);
+
+    return 0;
 }
